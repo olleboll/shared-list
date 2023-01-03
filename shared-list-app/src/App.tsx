@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useInterval } from 'usehooks-ts'
-
 
 type ListItem = {
   id: string;
@@ -10,6 +8,12 @@ type ListItem = {
 }
 
 const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<void>}, listId: string) => {
+  const [newItem, setNewItem] = useState<string>("")
+
+  const updateNew = (evt: any) => {
+    setNewItem(evt.target.value)
+  }
+
   return (
     <div className='
         flex 
@@ -44,12 +48,12 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<vo
         <>
           <div className='flex grow justify-center'>
             <div className='flex w-full justify-start px-4'>
-              <input className='w-full text-xl p-2 rounded' type="text"/>
+              <input className='w-full text-xl p-2 rounded' type="text" onChange={updateNew}/>
             </div>
           </div>
           <div className='flex shrink'>
             <div className='flex'>
-              <button onClick={() => props.onButtonClick("value")} className='border-2 min-w-[90px] rounded-md bg-slate-900 text-slate-300 border-rose-800 p-3'>Add</button>
+              <button onClick={() => props.onButtonClick(newItem)} className='border-2 min-w-[90px] rounded-md bg-slate-900 text-slate-300 border-rose-800 p-3'>Add</button>
             </div>
           </div>
         </>
@@ -61,31 +65,39 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<vo
 }
 
 const fetchList = async (listId: string): Promise<ListItem[]> => {
-  // TODO: Actually fetch the list
-  await timeout(1000);
-  return [
-    {
-      id: "test",
-      value: "Pasta",
-      listId: "test",
-      createdAt: Date.now()
-    },
-    {
-      id: "test2",
-      value: "gurka",
-      listId: "test",
-      createdAt: Date.now()
-    }
-  ]
+  const response = await fetch(import.meta.env.VITE_API_URL+`?list_id=${listId}`)
+  const list = await response.json();
+  console.log(list)
+  return list.map((l: { id: string, value: string, list_id: string, created_at: number }) => ({
+    id: l.id,
+    value: l.value,
+    listId: l.list_id,
+    createdAt: l.created_at,
+  }))
 }
 
 const createItem = async ({value, listId}: { value: string, listId: string}): Promise<void> => {
   // TODO: Actually create an item
-return;
+  const payload = {
+    value,
+    listId,
+  }
+
+  await fetch(import.meta.env.VITE_API_URL+`?list_id=${listId}`, {
+    method: "post",
+    body: JSON.stringify(payload)
+  })  
+
+  return;
 }
 
-const deleteItem = async (itemId: string): Promise<void> => {
-    // TODO: Actually delete the item
+const deleteItem = async (listId: string, itemId: string): Promise<void> => {
+  await fetch(import.meta.env.VITE_API_URL+`?list_id=${listId}`, {
+    method: "delete",
+    body: JSON.stringify({
+      id: itemId
+    })
+  })  
   return;
 }
 
@@ -93,7 +105,7 @@ const deleteItem = async (itemId: string): Promise<void> => {
 function App() {
 
   const queryParams = new URLSearchParams(window.location.search)
-  const listId = queryParams.get("listId")
+  const listId = queryParams.get("list_id")
 
   const [list, setList] = useState<ListItem[]>([])
 
@@ -112,19 +124,13 @@ function App() {
     }
   }, [list])
 
-  useInterval(() => {
-    if (list.length === 0) {
-      setListAsync();
-    }
-  }, 5000)
-
   const onDelete = async (itemId: string) => {
     if (!listId) {
       console.warn("No list id")
       return;
     }
     // Delete an item and trigger a list fetch?
-
+    await deleteItem(listId, itemId);
     await setListAsync();
   }
 
@@ -134,6 +140,8 @@ function App() {
       return;
     }
     // Create an item and trigger a list fetch?
+
+    await createItem({value: itemValue, listId})
 
     await setListAsync();
   }
