@@ -8,6 +8,11 @@ Description: >
 Globals:
   Function:
     Timeout: 3
+  Api:
+    Cors:
+      AllowMethods: "'Get, POST, DELETE, OPTIONS'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
 
 Resources:
   # BACKEND
@@ -97,7 +102,7 @@ Resources:
       Handler: app.deleteItem
       Runtime: nodejs18.x
       Policies:
-        - DynamoDBWritePolicy:
+        - DynamoDBCrudPolicy: # There is no outofbox delete policy smh...
             TableName: !Ref ListItemsTable
       Architectures:
         - x86_64

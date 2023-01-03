@@ -31,6 +31,9 @@ export const getItems = async (event: APIGatewayProxyEvent): Promise<APIGatewayP
         return {
             statusCode: 200,
             body: JSON.stringify(items),
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
         };
     } catch (err) {
         console.log(err);
@@ -67,6 +70,9 @@ export const createItem = async (event: APIGatewayProxyEvent): Promise<APIGatewa
         return {
             statusCode: 201,
             body: JSON.stringify(item),
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
         };
     } catch (err) {
         console.log(err);
@@ -97,6 +103,9 @@ export const deleteItem = async (event: APIGatewayProxyEvent): Promise<APIGatewa
             body: JSON.stringify({
                 message: 'deleted',
             }),
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+            },
         };
     } catch (err) {
         console.log(err);
