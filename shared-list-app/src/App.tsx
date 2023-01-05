@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type ListItem = {
   id: string;
@@ -8,21 +8,16 @@ type ListItem = {
 }
 
 const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<void>}, listId: string) => {
-  const [newItem, setNewItem] = useState<string>("")
-
-  const updateNew = (evt: any) => {
-    setNewItem(evt.target.value)
-  }
+  const inputRef = useRef<any>(null);
 
   return (
     <div className='
         flex 
         w-full 
         max-w-[500px] 
-        h-24 
-        bg-slate-400 
+        h-24
+        bg-slate-400
         border-2 
-        border-rose-800 
         rounded 
         p-8 
         items-center 
@@ -37,7 +32,7 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<vo
           </div>
           <div className='flex shrink'>
             <div className='flex'>
-              <button onClick={() => props.onButtonClick(props.item!.id)} className='border-2 min-w-[90px] rounded-md bg-slate-900 text-slate-300 border-rose-800 p-3'>Remove</button>
+              <button onClick={() => props.onButtonClick(props.item!.id)} className='border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-3'>Remove</button>
             </div>
           </div>
         </>
@@ -48,12 +43,19 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string) => Promise<vo
         <>
           <div className='flex grow justify-center'>
             <div className='flex w-full justify-start px-4'>
-              <input className='w-full text-xl p-2 rounded' type="text" onChange={updateNew}/>
+              <input ref={inputRef} className='w-full text-xl p-2 rounded' type="text"/>
             </div>
           </div>
           <div className='flex shrink'>
             <div className='flex'>
-              <button onClick={() => props.onButtonClick(newItem)} className='border-2 min-w-[90px] rounded-md bg-slate-900 text-slate-300 border-rose-800 p-3'>Add</button>
+              <button 
+                onClick={() => {
+                  props.onButtonClick(inputRef.current.value)
+                  inputRef.current.value = "";
+                  }} 
+                className='border-2 min-w-[90px] rounded-md bg-slate-600 border-rose-700 text-slate-300 p-3'>
+                  Add
+              </button>
             </div>
           </div>
         </>
@@ -155,7 +157,7 @@ function App() {
   })
 
   return (
-    <div className="flex flex-col justify-center w-screen h-screen bg-slate-900">
+    <div className="flex flex-col justify-center w-screen h-screen bg-purple-900">
       <div className='flex flex-col justify-center'>
         {items}
       </div>
