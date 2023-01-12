@@ -54,6 +54,7 @@ export const createItem = async (event: APIGatewayProxyEvent): Promise<APIGatewa
             id: uuid(),
             value: requestBody.value,
             list_id: requestBody.listId,
+            urgent: requestBody.urgent,
             created_at: Date.now(),
         };
         console.log(item);
