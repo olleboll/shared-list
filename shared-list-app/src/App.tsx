@@ -8,21 +8,22 @@ type ListItem = {
   createdAt: number;
 }
 
-const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: boolean) => Promise<void>}, listId: string) => {
+const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: boolean) => Promise<void>, size: "small" | "big"}) => {
   const inputRef = useRef<any>(null);
 
   const itemClasses = [
     "flex",
     "w-full",
-    "max-w-[500px]", 
-    "h-32",
-    "bg-slate-400",
+    "w-90%",
+    "max-w-[400px]",
+    "bg-slate-300",
     "border-2",
     "rounded",
-    "p-8",
+    "p-4",
     "items-center",
     "justify-start",
-    (props.item?.urgent ? "border-rose-700" : "")
+    (props.size === "big" ? "h-32" : "h-16"),
+    (props.item?.urgent ? "border-orange-600 border-4" : "")
   ].join(" ")
 
   return (
@@ -32,12 +33,12 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: bool
         <>
           <div className='flex grow justify-center'>
             <div className='flex w-full justify-start px-4'>
-              <p className='text-xl'>{props.item?.value}</p>
+              <p className='text-xl font-light'>{props.item?.value}</p>
             </div>
           </div>
           <div className='flex shrink'>
             <div className='flex'>
-              <button onClick={() => props.onButtonClick(props.item!.id)} className='border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-3'>Remove</button>
+              <button onClick={() => props.onButtonClick(props.item!.id)} className='border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-2'>Remove</button>
             </div>
           </div>
         </>
@@ -48,7 +49,7 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: bool
         <>
           <div className='flex grow justify-center'>
             <div className='flex w-full justify-start px-4'>
-              <input ref={inputRef} className='w-full text-xl p-2 rounded' type="text"/>
+              <input ref={inputRef} className='w-full text-2xl font-extralight h-12 p-2 rounded' type="text"/>
             </div>
           </div>
           <div className='flex shrink'>
@@ -58,7 +59,7 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: bool
                   props.onButtonClick(inputRef.current.value)
                   inputRef.current.value = "";
                   }} 
-                className='border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-3'>
+                className='border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-2'>
                   Add
               </button>
               <button 
@@ -66,8 +67,8 @@ const Item = (props: {item?: ListItem, onButtonClick: (id: string, urgent?: bool
                   props.onButtonClick(inputRef.current.value, true)
                   inputRef.current.value = "";
                   }} 
-                className='mt-2 border-2 min-w-[90px] rounded-md bg-slate-600 border-rose-700 text-slate-300 p-3'>
-                  Add Urgent
+                className='mt-2 border-2 min-w-[90px] rounded-md bg-slate-600 text-slate-300 p-2 border-rose-700'>
+                  Urgent
               </button>
             </div>
           </div>
@@ -122,7 +123,7 @@ const deleteItem = async (listId: string, itemId: string): Promise<void> => {
 function App() {
 
   const queryParams = new URLSearchParams(window.location.search)
-  const listId = queryParams.get("list_id")
+  const listId = queryParams.get("list_id") ?? import.meta.env.VITE_DEFAULT_LIST
 
   const [list, setList] = useState<ListItem[]>([])
   const inputRef = useRef<any>(null);
@@ -167,13 +168,13 @@ function App() {
   const items = list.map((item: ListItem) => {
     return (
       <div key={item.id} className='flex justify-center w-full mt-2'>
-        <Item onButtonClick={onDelete} item={item}/>
+        <Item onButtonClick={onDelete} item={item} size={'small'}/>
       </div>
     )
   })
 
   return (
-      <div className="flex flex-col justify-center w-screen min-h-screen bg-purple-700">
+      <div className="flex flex-col justify-center w-screen min-h-screen bg-purple-500">
         <div className='h-full py-[50px]'>
           {!listId && (
             <div className='flex flex-col justify-center items-center'>
@@ -206,7 +207,7 @@ function App() {
               </div>
               <div className='flex flex-col justify-center mt-2'>
                 <div className='flex justify-center w-full'>
-                  <Item onButtonClick={onCreate} />
+                  <Item onButtonClick={onCreate} size={"big"}/>
                 </div>
               </div>
             </>
